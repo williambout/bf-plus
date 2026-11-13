@@ -1,336 +1,167 @@
-# sigma-bf-root-shell
+# BF+
 
-RAM-only root shell for the **SIGMA BF** (firmware 1.04) over USB.
+Manual-focus controls and extra aspect ratios for the **SIGMA BF**.
 
-No flashing, no memory card, no soldering. The camera enumerates as its normal
-MTP device, a small payload runs in the RTOS, and commands execute as `root` in
-the camera's Linux side.
+BF+ 1.0 adds a native-style **Settings → BF+** submenu to firmware **1.04**.
+Touch the center button to check focus, center magnification on a detected
+subject, or enable additional ratios in the camera’s normal aspect selector.
 
-Verified on hardware: `uid=0(root) gid=0(root)`, Linux 4.19.124, aarch64.
+BF+ loads into RAM over USB. Power cycling removes the extension and resets
+its options; it does not replace the installed firmware.
 
-The experimental **BF+ v1.0 extension** is documented in
-[docs/TOUCH-FOCUS.md](docs/TOUCH-FOCUS.md). It adds a settings submenu for
-momentary center-button touch magnification with a manual lens without contacts.
-The **MF Subject Detection** option activates native eye/face detection for
-that gesture. Subject centering and release restoration are confirmed on camera.
-The gray target indicator and touch zoom follow the target selected by native
-AF detection. Hardware validation is documented with the feature.
-Its hardware validation status is tracked separately from the root-shell work.
+## Features
 
-The current source retains native landscape rendering and button/dial menus.
-The automatic UI rotation and LCD menu-control experiment has been removed
-from the replacement build. **BF+ → Extra Aspect Ratios → OFF/ON** enables
-XPan (65:24), 2.35:1 and 5:4 alongside the native aspect choices; it starts OFF.
-The reduced build was installed and its hooks/settings verified on 2026-11-13.
-Native chooser interaction and saved-photo crops await camera validation.
-Center-button Touch Focus Zoom and MF Subject Detection remain.
+### Touch Focus Zoom
 
-The [manual focus guide prototype](docs/FOCUS-GUIDE.md) has a tested indicator
-core and a read-only phase-data probe. Camera integration remains incomplete:
-the stock phase worker skips the requested lens without electronic contacts.
-The live Focus Guide is deferred and is not exposed by the installed BF+ menu.
+Lightly touch the center button to magnify live view. Keep your finger on it
+while focusing, then lift it to return to the full view. No button press is
+needed.
 
+Designed for a fully manual lens or adapter **without electronic contacts**
+in still-photo mode. Focus stays manual. Turn the feature ON or OFF in BF+.
+
+### MF Subject Detection
+
+Use the camera’s native eye/face detection with a manual lens. A gray frame
+marks the selected subject. With Touch Focus Zoom also ON, touching center
+magnifies the detected eye or face.
+
+The target is chosen at the start of each touch and stays steady while held.
+Release restores the previous zoom position. If no usable subject is detected,
+magnification uses the current zoom position.
+
+### Extra Aspect Ratios
+
+Set **Extra Aspect Ratios → ON** to append these choices to the native
+aspect-ratio selector, after 1:1:
+
+| Ratio | Format |
+| --- | --- |
+| **65:24** | XPan |
+| **2.35:1** | Cinema widescreen |
+| **5:4** | Classic photographic format |
+
+The option defaults to **OFF**. Turning it OFF restores the seven stock
+choices and returns from a custom crop to the stored native ratio.
+
+Cropped JPEG output and DNG crop metadata are implemented and tested offline;
+RAW pixels remain intact. **Native selector interaction and real saved-photo
+crops still need camera validation.** See [aspect-ratio details](docs/ASPECT-RATIOS.md).
+
+## On-camera menu
+
+```text
+Settings → BF+
+  Touch Focus Zoom      OFF / ON
+  MF Subject Detection  OFF / ON
+  Extra Aspect Ratios   OFF / ON
+  Version               1.0
 ```
-$ python bf_shell.py -c "id; uname -a"
-uid=0(root) gid=0(root)
-Linux mlbel 4.19.124 #189 SMP PREEMPT ... aarch64 GNU/Linux
-```
 
-> **Firmware 1.04 only.** The addresses below are live values from 1.04 and
-> differ in other builds. Do not run this against a different firmware.
+BF+ uses the camera’s native fonts, layout, and compact ON/OFF selector.
+Navigate with the buttons or dial; center/right confirms and left cancels
+an option change. Version is read-only.
 
----
+## Current status
 
-## 1. Requirements
+| Area | Validation |
+| --- | --- |
+| Touch-to-zoom and release | Confirmed on camera |
+| Subject detection, target frame, and zoom-position restoration | Confirmed on camera |
+| BF+ submenu styling and compact selectors | Confirmed on earlier feature builds |
+| Current BF+ 1.0 build | Installed; code, hooks, permissions, and settings verified |
+| Extra aspect ratios | Offline navigation/crop checks pass; physical selector and saved-file checks pending |
 
-- SIGMA BF, firmware 1.04
-- macOS or Linux, Python 3.9+
-- `pyusb`
-- USB-C data cable
-- Camera awake, **not recording**
+The full local offline suite passed **399 tests**. Hardware observations and
+remaining checks are recorded in the [feature guide](docs/TOUCH-FOCUS.md).
+
+The active build uses native landscape rendering and button/dial navigation.
+Focus Guide, touchscreen menu controls, and automatic UI rotation are research
+prototypes and are not included in the active build.
+
+## Install from source
+
+You need:
+
+- A **SIGMA BF running firmware 1.04** and the original `BF__V104.bin` package.
+- A USB data cable and the camera connected in **normal MTP mode**.
+- macOS or Linux, **Python 3.11+**, and libusb.
+- Clang with AArch64 support, LLVM tools, and lld.
 
 ```sh
+git clone https://github.com/williambout/bf-plus.git
+cd bf-plus
 python3 -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
+.venv/bin/pip install -r requirements-touch-focus.txt
+.venv/bin/python bf_touch_focus.py build
 ```
 
----
-
-## 2. Put the camera in MTP mode
-
-This is the step people get wrong. The BF does **not** use MTP by default.
-
-| USB mode | Host sees | Usable for this tool |
-|---|---|---|
-| Stream Video / UVC | `1003:c464` | no |
-| Mass Storage | USB disk | no |
-| **Normal MTP** | `1003:c462` (MTP interface, `mtp-server` running) | **yes** |
-
-Normal MTP is reachable from the **stock USB connection chooser** with a hidden
-gesture. It is a firmware quirk, not a menu setting.
-
-### 2.1 Get the chooser to appear
-
-Unplug the camera and plug it into the computer again. On the camera screen a
-USB connection page appears:
-
-- **Access Camera** — "Operate int. storage from an ext. device."
-- **Stream Video** — "Stream video to an external device."
-
-Choose **Access Camera**. The next page has two choices:
-
-- **Mass Storage**
-- **Cancel**
-
-Mass Storage is highlighted by default. **Do not confirm it.**
-
-> Do not start the gesture from an active UVC session. If the camera is already
-> streaming video over USB, unplug/replug first. The MTP branch is explicitly
-> blocked when the effective connection is UVC.
-
-### 2.2 Hidden MTP gesture
-
-On the **Access Camera** page, with **Mass Storage** highlighted:
-
-1. Put one finger on an empty part of the LCD, drag a little, and **keep the
-   finger down**. Do not lift it.
-2. Without lifting, turn the rear dial so the highlight moves:
-
-   ```
-   Cancel  ->  Mass Storage  ->  Cancel
-   ```
-
-   That is **three separate movements**. Pause and let each highlight appear
-   before reversing direction. Do not spin fast; multiple detents in one event
-   count only once.
-3. **Lift the finger.**
-4. Confirm the highlighted **Cancel** with the normal confirm control, as a
-   **separate action** after the last dial movement.
-
-If the hidden counter reached 3, the firmware selects normal MTP instead of
-cancelling. The chooser screen closes and the USB device re-enumerates.
-
-### 2.3 Verify
-
-macOS:
+Follow the [USB/MTP setup instructions](docs/ROOT-SHELL.md#2-put-the-camera-in-mtp-mode).
+Return the camera to idle still-photo live view and leave the buttons untouched
+during installation. Check the current state first:
 
 ```sh
-ioreg -p IOUSB -l -w0 | grep -i "SIGMA C46"
+.venv/bin/python bf_touch_focus.py status
 ```
 
-Linux:
+For a camera with no BF+ installation currently loaded:
 
 ```sh
-lsusb | grep 1003:c462
+.venv/bin/python bf_touch_focus.py install \
+  --firmware /path/to/BF__V104.bin \
+  --enable --subject-detection
 ```
 
-Expected: `1003:c462`. Then confirm the tool sees it:
+This starts **Touch Focus Zoom** and **MF Subject Detection** ON, with
+**Extra Aspect Ratios** OFF. Adjust them in **Settings → BF+**. The original
+firmware package is read only to verify its identity.
+
+To remove a loaded build, return to still-photo live view, release the center
+button, and run:
 
 ```sh
-python bf_shell.py --probe
-# {"ok": true, "output": "probe-ok\r\n", ...}
+.venv/bin/python bf_touch_focus.py remove
 ```
 
-If `--probe` says "device not found", the camera is not in MTP mode. If it
-enumerates as `1003:c464`, you are in UVC mode.
+Keep the generated `.touch-focus/` directory until removal: it records the
+exact installed build. Remove an existing build before installing a different
+one. Power cycling also removes BF+.
 
-### 2.4 Notes and caveats
+> Installation is experimental and specific to the analyzed 1.04 firmware.
+> The USB write command also triggers calibration flash saves. The loader
+> enforces cooldowns and readback checks; do not bypass them or retry an
+> uncertain installation. See [transport and recovery](docs/TOUCH-FOCUS.md#transport-and-recovery).
 
-- The chooser labels and the dial polarity were traced from the stock firmware
-  and the sequence was used successfully, but wording can vary by UI language.
-  If the page or choices do not match the description, **stop** and do not
-  improvise.
-- Entering MTP changes the camera's USB mode setting; it is not a
-  settings-neutral operation. The camera may remember the last USB mode across
-  shutdowns. To return to UVC, reconnect and pick the ordinary
-  **Stream Video** option without the gesture.
-- Plugging the camera in again later may go straight to the last-used mode.
-  Unplug/replug until the chooser appears.
+## Development
 
----
-
-## 3. Use the shell
-
-One command:
+Run the offline suite:
 
 ```sh
-python bf_shell.py -c "id; uname -a"
+.venv/bin/python -m unittest discover -s tests
 ```
 
-Interactive (one calibration save per command, ~10 s apart):
+Firmware-dependent tests require a local decoded copy of the supported image;
+see the [firmware analysis guide](docs/FIRMWARE-DECRYPTION.md). The repository
+contains original code and documentation, with no Sigma firmware or extracted
+binaries. Firmware files, generated builds, and local camera records stay ignored.
 
-```sh
-python bf_shell.py
-bf> ls /media/root
-bf> ps | head -n 5
-bf> exit
-```
+| Path | Purpose |
+| --- | --- |
+| [`touch_focus/`](touch_focus/) | Resident feature code, menus, and build tools |
+| [`bf_touch_focus.py`](bf_touch_focus.py) | Build, status, install, and removal CLI |
+| [`bf_plus_loader.py`](bf_plus_loader.py) | Verified, bounded RAM loading |
+| [`bf_camera_files.py`](bf_camera_files.py) | Read-only JPEG/DNG download and metadata inspection |
+| [`tests/`](tests/) | Host, emulation, menu, and crop checks |
 
-Check / recover:
+## Documentation and origins
 
-```sh
-python bf_shell.py --probe     # channel self-test
-python bf_shell.py --restore   # put the storage callback back
-python bf_shell.py --clean     # remove leftover output files
-```
+- [BF+ feature and installation guide](docs/TOUCH-FOCUS.md)
+- [MF Subject Detection](docs/MF-SUBJECT-DETECTION.md)
+- [Extra Aspect Ratios](docs/ASPECT-RATIOS.md)
+- [Segmented RAM loader](docs/SEGMENTED-LOADER.md)
+- [USB/MTP and root-shell tools](docs/ROOT-SHELL.md)
+- [Custom firmware research](docs/CUSTOM-FIRMWARE.md) — boot integration remains unimplemented.
 
-### Limits
-
-- Command text: **140 characters**
-- Output: **100 bytes**
-- Output comes back as a hex string inside an MTP object *name*
-  (`bo_<tag><hex>.txt` in `/media/root/SIGMA`), because MTP `GetObject` does not
-  serve files created this way.
-- One command per ~10 s. The tool enforces the cooldown.
-
----
-
-## 4. Safety
-
-The method is RAM-only, but it is **not** a no-flash operation:
-
-- Every `0x900a` write triggers an unconditional 64 KiB calibration block save.
-  The block's contents are unchanged (we never target it), but flash is written.
-- Several saves in quick succession can wedge the RTOS: screen and USB stop
-  responding. Recovery is a power cycle.
-- So: **one payload write, one trigger, no retries, ~10 s apart.** The tools do
-  this for you.
-
-The callback slot is verified before every write. If it is not the recorded
-original `0x4d31254f0`, the tool refuses to run.
-
-| Situation | Action |
-|---|---|
-| Normal end of command | nothing; callback is restored automatically |
-| Callback left pointing at the payload | `python bf_shell.py --restore` |
-| Shell stops responding | power-cycle the camera |
-| Camera unresponsive after rapid triggers | power-cycle the camera |
-
-Do not use this while recording, and do not write to the calibration base or
-the base global.
-
----
-
-## 5. Optional: persistent interactive shell (CDC-ACM)
-
-Once you have the one-shot shell, you can add a USB serial function to the MTP
-gadget and get a normal interactive root shell for the rest of the power cycle.
-**This costs the MTP channel until the next power cycle.**
-
-Write this to the card as `/media/root/SIGMA/a.sh` (over MTP, or with a few
-`bf_shell.py -c "echo ... >> ..."` commands):
-
-```sh
-#!/bin/sh
-cd /sys/kernel/config/usb_gadget/mtp
-U=$(cat UDC)
-modprobe usb_f_acm
-mkdir -p functions/acm.gs0
-echo > UDC
-sleep 1
-ln -sf functions/acm.gs0 configs/c.1/acm.gs0
-echo "$U" > UDC
-sleep 2
-sh -i </dev/ttyGS0 >/dev/ttyGS0 2>&1 &
-```
-
-Run it once:
-
-```sh
-python bf_shell.py -c "sh /media/root/SIGMA/a.sh"
-```
-
-On macOS a serial device appears:
-
-```sh
-ls /dev/cu.usbmodem*
-python acm_sh.py /dev/cu.usbmodem4202 "id; uname -a"
-```
-
-or `screen /dev/cu.usbmodem* 115200`.
-
-Caveats from the verified run:
-
-- MTP / `0x900a` does not survive the rebind; it returns after a power cycle.
-- A host USB reset can kill the shell; power-cycle if that happens.
-- `mtp-server` inherits `/dev/ttyGS0` if launched from that shell; redirect it.
-
-Untested improved recipe (keeps MTP alive and respawns the shell):
-
-```sh
-killall mtp-server
-cd /sys/kernel/config/usb_gadget/mtp
-U=$(cat UDC)
-echo > UDC ; sleep 1
-ln -sf functions/acm.gs0 configs/c.1/acm.gs0
-echo "$U" > UDC ; sleep 2
-mtp-server </dev/null >/dev/null 2>&1 &
-sh -c 'while :; do sh -i </dev/ttyGS0 >/dev/ttyGS0 2>&1; sleep 1; done' \
-    </dev/null >/dev/null 2>&1 &
-```
-
----
-
-## 6. Troubleshooting
-
-| Symptom | Cause / fix |
-|---|---|
-| `device not found` | camera is not in normal MTP; repeat §2 |
-| Enumerates as `1003:c464` | UVC mode; unplug/replug, choose Access Camera + gesture |
-| `read buffer not allocated` | run `--probe` once after MTP enumeration |
-| `callback slot is ... not ...` | previous run left the slot dirty; `--restore`, then power-cycle if needed |
-| `payload write rejected` | USB/RTOS busy; wait, run `--probe`, retry once |
-| `no output object appeared` | command crashed or wrote nothing; try a simpler command |
-| Camera freezes / USB dies | rapid saves; power-cycle and respect the 10 s cooldown |
-
----
-
-## 7. Firmware decryption (optional, separate from the shell)
-
-The BF update package is obfuscated with a byte-wise additive stream. No secret
-key is needed: the stream is generated from the file itself, either from the
-xorshift32 seed stored in the header or from the fixed known plaintext at the
-start of segment 2 plus the linear recurrence.
-
-```sh
-python tools/decode_bf.py /path/to/BF__V104.bin -o decoded-V104
-```
-
-Details, the exact recurrence, and the vendor xorshift implementation are in
-**`docs/FIRMWARE-DECRYPTION.md`**.
-
-This repository **does not contain any Sigma firmware, decrypted images, or
-extracted firmware content**. You must supply the package yourself; decrypted
-output is Sigma code and should stay local.
-
----
-
-## 8. Files
-
-| file | purpose |
-|---|---|
-| `bf_shell.py` | one-shot and interactive root command channel |
-| `live_stage.py` | low-level payload stages (`scratch`, `marker`, `ipc`), `--restore` |
-| `build_live_payload.py` | payload builder |
-| `acm_sh.py` | serial client for the optional CDC-ACM shell |
-| `display_mmio.py` | extra: RTOS MMIO read/write and IMX410 sensor register writes |
-| `tools/decode_bf.py` | decrypt a BF update package you supply (no key) |
-| `docs/HOW-IT-WORKS.md` | the full chain and live addresses |
-| `docs/SENSOR-NOTES.md` | what the sensor access was used for (and why mirroring is not possible) |
-| `docs/FIRMWARE-DECRYPTION.md` | package layout, keystream recovery, recurrence, vendor seed |
-
----
-
-## 9. Scope and content policy
-
-This is a research tool for your own camera. It runs code in the camera's RTOS
-through a stock vendor command. It does not modify firmware, does not change
-persistent camera settings, and does not survive a reboot except for the USB
-mode change described in §2.4.
-
-The repository contains only original scripts and documentation. It ships **no
-Sigma firmware files, no decrypted firmware images, and no extracted Sigma
-binaries**. Firmware analysis tools require the user to provide the package, and
-`.gitignore` excludes `*.bin`, `decoded*/` and `firmware/` so such files are not
-committed by accident.
+BF+ is a fork of [wjhrdy/sigma-bf-root-shell](https://github.com/wjhrdy/sigma-bf-root-shell).
+The original USB root-shell and firmware-analysis tools remain available for
+diagnostics and development.

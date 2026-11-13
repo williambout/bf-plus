@@ -2,8 +2,8 @@
 
 This is an original, reversible RAM extension for the analyzed Sigma BF 1.04
 build. It does not produce a modified firmware update. Power cycling removes
-the extension and resets its options; installation requires the MTP connection
-described in the main README.
+the extension and resets its options; installation requires the
+[MTP connection setup](ROOT-SHELL.md#2-put-the-camera-in-mtp-mode).
 
 **BF+** is appended to Settings as a submenu. It contains **Touch Focus Zoom**
 (OFF/ON), **MF Subject Detection** (OFF/ON, initially OFF), **Extra Aspect Ratios**
