@@ -1,6 +1,6 @@
 # Native ordinary row-list touch — BF V104
 
-`touch_focus/native_touch_rows.h` adds touch selection and discrete drag
+`bfplus/native_touch_rows.h` adds touch selection and discrete drag
 navigation to **six verified stock row-list families**. A tap selects using
 native signed dial events and activates using native center. It never writes
 native selectors, row descriptors or setting values. The compact eight-family

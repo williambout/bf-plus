@@ -5,7 +5,7 @@ are separate from the CPU OSD. **The CPU OSD still contains image-coordinate
 crosshairs, aspect-bound corners, and the electronic level.** Fitting the
 entire mixed OSD moves those graphics away from the image.
 
-`touch_focus/ui_image_anchors.h` implements a bounded split for the photo and
+`bfplus/ui_image_anchors.h` implements a bounded split for the photo and
 cine **root live-view** callback families. It defers their native level and
 center-marker painting, draws those anchors once on a cleared physical
 surface, then lets the parent composite fitted UI over them. No third raster
@@ -35,7 +35,7 @@ prove absence of computed calls or unclassified image-bearing scenes.
 
 ## Parent integration contract
 
-The module's public API is in `touch_focus/ui_image_anchors.h`. Use its
+The module's public API is in `bfplus/ui_image_anchors.h`. Use its
 `UI_IMAGE_ANCHORS_BL_HOOKS(X)` table: **14 direct BL sites**, eight for level
 painters and six for the center wrapper. There is no tail-B patch. The six
 root callers of `0x4d339f070` discard its return; `defer()` nevertheless
@@ -333,7 +333,7 @@ transactions, active-hierarchy checks, and restoration before popup backing
 capture. These tests do not claim hardware visual validation or completion of
 all image-bearing scenes.
 
-The bounded deliverables are `touch_focus/ui_image_anchors.h`,
+The bounded deliverables are `bfplus/ui_image_anchors.h`,
 `tests/test_ui_image_anchors.py`, and this document. Row, compact-picker,
 payload, build, global compositor and parent integration files were not edited
 by this assignment.

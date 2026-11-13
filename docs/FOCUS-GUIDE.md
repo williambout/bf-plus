@@ -278,7 +278,7 @@ and unchanged surrounding canaries. The hardware experiment below confirms
 that correcting this fill changes the sampled PAS crops from zero to textured
 images on the tested no-contact lens.
 
-`touch_focus/focus_pas.h` contains a scoped correction, currently
+`bfplus/focus_pas.h` contains a scoped correction, currently
 **unlinked and disabled in normal BF+ builds**. A separate temporary add-on
 was used for the completed hardware experiment and has been removed. It replaced only the two fallback call sites and
 requires the no-contact class, exact corresponding table address, value and
@@ -346,7 +346,7 @@ verification before deploying the continuous adapter.
 Capture the current supported writer layout without changing the camera:
 
 ```sh
-.venv/bin/python bf_focus_raw_probe.py --pair 2 --samples 3 --output .touch-focus/raw-phase-new
+.venv/bin/python bfplus_focus_raw_probe.py --pair 2 --samples 3 --output .touch-focus/raw-phase-new
 ```
 
 Use a new output directory. Pair 1 is available with `--pair 1`; larger spans
@@ -362,7 +362,7 @@ Those captures are now marked `unsupported_scene`; repeated timing across
 host samples is reported explicitly. This case has two regression tests.
 It must not be used as an in-focus reference, even when image correlation is high.
 
-`touch_focus/focus_phase.c` is an original, integer-only normalized correlation
+`bfplus/focus_phase.c` is an original, integer-only normalized correlation
 matcher for these byte crops. It removes per-row intensity offsets, measures
 texture, checks peak separation and rejects flat, tied or boundary peaks.
 It has no default configuration and returns **pixel displacement**, not
@@ -420,7 +420,7 @@ validity and fresh publication evidence.
 With the camera awake in the existing MTP connection:
 
 ```sh
-.venv/bin/python bf_focus_guide_probe.py --samples 5 --output .touch-focus/guide-capture.jsonl
+.venv/bin/python bfplus_focus_guide_probe.py --samples 5 --output .touch-focus/guide-capture.jsonl
 ```
 
 The probe checks the existing firmware fingerprints, honors the shared PTP
@@ -437,7 +437,7 @@ Generate the preview from the actual C painter with synthetic test units:
 
 ```sh
 mkdir -p .touch-focus
-clang -std=c11 -Wall -Wextra -Werror tools/focus_guide_preview.c touch_focus/focus_guide.c -o .touch-focus/guide-preview
+clang -std=c11 -Wall -Wextra -Werror tools/focus_guide_preview.c bfplus/focus_guide.c -o .touch-focus/guide-preview
 .touch-focus/guide-preview > docs/focus-guide-preview.svg
 ```
 

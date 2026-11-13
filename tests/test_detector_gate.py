@@ -3,9 +3,9 @@ import unittest
 from pathlib import Path
 
 from unicorn import arm64_const as r
-from bf_touch_focus import CODE_PATCHES, PATCHES
+from bfplus_cli import CODE_PATCHES, PATCHES
 from tests.test_touch_payload import Machine, STAGE, RESIDENT, STOP, FW, LIVE_LITERAL, LIVE
-from touch_focus.build import build
+from bfplus.build import build
 
 CALL, ISLAND = 0x4d326dcd4, 0x4d3321270
 

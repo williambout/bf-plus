@@ -250,12 +250,12 @@ Source SHA-256 values at the start of that test run:
 
 | File | SHA-256 |
 |---|---|
-| `touch_focus/menu.h` | `1be9dc4d91598abf01e1dfb87b42ae56648fbf92e8de20f55e67885e2800c301` |
+| `bfplus/menu.h` | `1be9dc4d91598abf01e1dfb87b42ae56648fbf92e8de20f55e67885e2800c301` |
 | `tests/test_touch_menu.py` | `562954e5cc315ce268b4183047004e75ac4f2fb3793164b2abf064f9345b09a2` |
-| `touch_focus/aspect_ratio.h` | `c97cd4f505315d4d4e147fdd686ade6d28b622963408beb7f3595b5dd1751467` |
-| `touch_focus/payload.c` | `a78337b52d1725e85afe4411205fc88c5db65676dd836be262cc1e8e44f39663` |
-| `touch_focus/build.py` | `501fae95f47443e5a46fed71eb724225e5b8dfb44a9f8e255c5ac495cebddbd5` |
-| `touch_focus/payload.ld` | `a265d40f58b672010ba5db8d9ccb59daee8478381a0730545d3f85f7d44cbce7` |
+| `bfplus/aspect_ratio.h` | `c97cd4f505315d4d4e147fdd686ade6d28b622963408beb7f3595b5dd1751467` |
+| `bfplus/payload.c` | `a78337b52d1725e85afe4411205fc88c5db65676dd836be262cc1e8e44f39663` |
+| `bfplus/build.py` | `501fae95f47443e5a46fed71eb724225e5b8dfb44a9f8e255c5ac495cebddbd5` |
+| `bfplus/payload.ld` | `a265d40f58b672010ba5db8d9ccb59daee8478381a0730545d3f85f7d44cbce7` |
 
 Another writer added LCD tap/drag support and bootstrap `aspect_initialize`; this worker preserved those changes. During the test run, `menu.h` changed to `fe48bc7bcbf928d8382b52d658aed845cb2e7c5762e212bddba7c5505cd14283`. All other hashed source files, including the tests, backend, builder, linker, launcher, detector/frame and guide sources, remained unchanged during the run. The 63-test result therefore does not establish the newer menu revision or future backend revisions. The parent owns final source freeze, full-suite validation and installation. This UI worker stops editing at handoff and has made no hardware writes or commits.
 

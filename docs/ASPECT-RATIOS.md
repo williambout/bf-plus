@@ -111,7 +111,7 @@ saved-setting preservation, and removal refusal.
 The seven budget sites are exercised across three formats, two sensor sizes,
 and all three private choices.
 
-`bf_camera_files.py` reads standard MTP object lists, information, and selected
+`bfplus_camera_files.py` reads standard MTP object lists, information, and selected
 JPEG/DNG objects through the existing exclusive transport lock. Its variable
 length responses remain bounded and retain the base transport's transaction
 and framing checks. It never captures, deletes, changes settings, or writes

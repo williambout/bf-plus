@@ -10,9 +10,9 @@ import threading
 import unittest
 from unittest.mock import Mock, patch
 
-import bf_touch_focus as cli
-import bf_plus_loader as loader
-from touch_focus.loader_build import build as build_loader
+import bfplus_cli as cli
+import bfplus_loader as loader
+from bfplus.loader_build import build as build_loader
 
 BUF=0x447579000
 STAGE=BUF+0xc000
@@ -136,7 +136,7 @@ class CLITests(unittest.TestCase):
                 self.assertEqual(int.from_bytes(f.read(size),'little'),original,hex(address))
 
     def test_native_aspect_hooks_match_shared_macro_snapshot(self):
-        source=(cli.ROOT/'touch_focus/aspect_ratio.h').read_text()
+        source=(cli.ROOT/'bfplus/aspect_ratio.h').read_text()
         with patch.object(Path,'read_text',side_effect=AssertionError('must use snapshot')):
             entries=cli.native_aspect_code_patches(source)
         self.assertEqual(entries,cli.NATIVE_ASPECT_CODE_PATCHES)

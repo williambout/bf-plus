@@ -1,6 +1,6 @@
 # Native private user-settings list touch — V104
 
-`touch_focus/native_touch_private_list.h` adapts **only** stock input
+`bfplus/native_touch_private_list.h` adapts **only** stock input
 `0x4d3386a00`: the variable-length child reached from ordinary row family 3,
 row 1, via `0x4d3386f90` and scene descriptor `0x4d3e892e8`.
 This closes the specific private-list gap identified in

@@ -124,8 +124,8 @@ class FocusLiveTests(unittest.TestCase):
         d = Path(cls.tmp.name)
         (d/'fakes.c').write_text(FAKES)
         subprocess.run([cc, '-std=c11', '-O2', '-shared', '-fPIC', '-Wall', '-Wextra', '-Werror',
-                        '-I', str(ROOT/'touch_focus'), str(d/'fakes.c'),
-                        *(str(ROOT/'touch_focus'/n) for n in
+                        '-I', str(ROOT/'bfplus'), str(d/'fakes.c'),
+                        *(str(ROOT/'bfplus'/n) for n in
                           ('focus_live.c', 'focus_guide.c', 'focus_phase.c')),
                         '-o', str(d/'live.so')], check=True, capture_output=True, text=True)
         cls.lib = C.CDLL(str(d/'live.so'))

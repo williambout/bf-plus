@@ -1,6 +1,6 @@
 # Native image-anchor and playback UI profiles
 
-`touch_focus/ui_image_profiles.h` extends the root image-anchor adapter with
+`bfplus/ui_image_profiles.h` extends the root image-anchor adapter with
 two aspect-corner scenes, the dedicated level menu, normal live AF and bounded
 S2/overlay recipes with verified inherited bases,
 and inventories verified UI-only playback painters.

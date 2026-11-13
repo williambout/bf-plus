@@ -17,7 +17,7 @@ from unicorn import UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE
 from unicorn import arm64_const as r
 
 from tests.test_touch_payload import FW, Machine, RESIDENT, STACK, STAGE
-from bf_touch_focus import PATCHES
+from bfplus_cli import PATCHES
 
 
 def build_menu_fixture():
@@ -27,10 +27,10 @@ def build_menu_fixture():
     The emulator explicitly invokes menu_initialize; installer integration
     belongs to test_touch_payload.
     """
-    builder = importlib.import_module('touch_focus.build')
+    builder = importlib.import_module('bfplus.build')
     with tempfile.TemporaryDirectory(prefix='bf-menu-test-') as directory:
         root = Path(directory)
-        target = root / 'touch_focus'
+        target = root / 'bfplus'
         target.mkdir()
         pending=['payload.c', 'payload.ld', 'launch.S']
         copied=set()
@@ -38,7 +38,7 @@ def build_menu_fixture():
             name=pending.pop()
             if name in copied: continue
             copied.add(name)
-            raw=(builder.ROOT/'touch_focus'/name).read_bytes()
+            raw=(builder.ROOT/'bfplus'/name).read_bytes()
             (target/name).write_bytes(raw)
             if name.endswith(('.c','.h')):
                 pending.extend(re.findall(r'^\s*#\s*include\s+"([^"]+)"',raw.decode(),re.M))

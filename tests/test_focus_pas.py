@@ -11,8 +11,8 @@ import unittest
 
 from unicorn import Uc, UC_ARCH_ARM64, UC_MODE_ARM, UC_HOOK_CODE
 from unicorn import arm64_const as r
-from touch_focus.build import tool
-from bf_touch_focus import branch_instruction
+from bfplus.build import tool
+from bfplus_cli import branch_instruction
 
 ROOT = Path(__file__).resolve().parents[1]
 FIRMWARE = ROOT/'decoded-V104/rtos-alt.bin'
@@ -51,7 +51,7 @@ static u32 lens(void) { return ((u32 (*)(void))(uptr)0x4d31d48c0ULL)(); }
                         '-fno-builtin', '-fno-stack-protector', '-fno-unwind-tables',
                         '-fno-asynchronous-unwind-tables', '-mgeneral-regs-only',
                         '-ffixed-x18', '-mcmodel=tiny', '-fpie', '-fvisibility=hidden',
-                        '-Wall', '-Wextra', '-Werror', '-I', str(ROOT/'touch_focus'),
+                        '-Wall', '-Wextra', '-Werror', '-I', str(ROOT/'bfplus'),
                         '-c', str(d/'pas.c'), '-o', str(d/'pas.o')], check=True)
         subprocess.run([ld, '-T', str(d/'pas.ld'), '-e', 'focus_pas_wrapper',
                         str(d/'pas.o'), '-o', str(d/'pas.elf')], check=True)

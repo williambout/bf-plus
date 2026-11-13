@@ -48,7 +48,7 @@ def compile_guide(directory):
         raise RuntimeError('A C compiler is required for focus guide tests')
     library = Path(directory) / 'focus_guide.so'
     subprocess.run([compiler, '-std=c11', '-Os', '-shared', '-fPIC', '-Wall', '-Wextra',
-                    '-Werror', '-pedantic', str(ROOT / 'touch_focus/focus_guide.c'),
+                    '-Werror', '-pedantic', str(ROOT / 'bfplus/focus_guide.c'),
                     '-o', str(library)], check=True, capture_output=True, text=True)
     lib = C.CDLL(str(library))
     signatures = {

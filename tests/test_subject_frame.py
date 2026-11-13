@@ -3,10 +3,10 @@ import struct
 import unittest
 
 from unicorn import arm64_const as r
-from bf_touch_focus import PATCHES, CODE_PATCHES
+from bfplus_cli import PATCHES, CODE_PATCHES
 from tests.test_focus_target import TargetMachine, FIRMWARE, rectangle
 from tests.test_touch_payload import FW, RESIDENT, STACK, STOP
-from touch_focus.build import build
+from bfplus.build import build
 
 FRAME = 0x4d72aa598
 STOCK_FRAME = 0x4d7034670

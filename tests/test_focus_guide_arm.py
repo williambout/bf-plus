@@ -11,10 +11,10 @@ import struct
 
 from unicorn import Uc, UC_ARCH_ARM64, UC_MODE_ARM, UC_HOOK_CODE
 from unicorn import arm64_const as r
-from touch_focus.build import tool
+from bfplus.build import tool
 from tests.test_focus_guide import Guide, Config, Sample, Mark
 from tests.test_focus_guide_probe import manual_table
-from bf_focus_guide_probe import decode_manual_lenses, MANUAL_LENSES, SETTINGS
+from bfplus_focus_guide_probe import decode_manual_lenses, MANUAL_LENSES, SETTINGS
 
 ROOT = Path(__file__).resolve().parents[1]
 FIRMWARE = ROOT / 'decoded-V104/rtos-alt.bin'
@@ -38,7 +38,7 @@ class GuideArmTests(unittest.TestCase):
                         '-fno-unwind-tables','-fno-asynchronous-unwind-tables',
                         '-mgeneral-regs-only','-ffixed-x18','-fno-jump-tables',
                         '-mcmodel=tiny','-fpie','-fvisibility=hidden','-Wall','-Wextra','-Werror',
-                        '-c',str(ROOT/'touch_focus/focus_guide.c'),'-o',str(obj)],check=True)
+                        '-c',str(ROOT/'bfplus/focus_guide.c'),'-o',str(obj)],check=True)
         # No libc/runtime is supplied. This catches aggregate initialization or
         # arithmetic unexpectedly lowering to missing helper functions.
         subprocess.run([linker,'--image-base=0','-Ttext=0x100000','-e','focus_guide_init',

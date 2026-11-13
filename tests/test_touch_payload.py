@@ -9,8 +9,8 @@ import unittest
 from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
 from unicorn import Uc, UC_ARCH_ARM64, UC_MODE_ARM, UC_HOOK_CODE, UC_HOOK_MEM_READ
 from unicorn import arm64_const as r
-from touch_focus.build import build
-from bf_touch_focus import PATCHES, CODE_PATCHES
+from bfplus.build import build
+from bfplus_cli import PATCHES, CODE_PATCHES
 
 STAGE = 0x447581000
 ALLOC = 0x447701123

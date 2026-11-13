@@ -119,29 +119,29 @@ lld. Capstone and Unicorn are needed for the offline tests.
 
 ```sh
 python3 -m venv .venv
-.venv/bin/pip install -r requirements-touch-focus.txt
-.venv/bin/python bf_touch_focus.py build
+.venv/bin/pip install -r requirements-bfplus.txt
+.venv/bin/python bfplus_cli.py build
 .venv/bin/python -m unittest discover -s tests
 
 # Read-only identity and current state:
-.venv/bin/python bf_touch_focus.py status
+.venv/bin/python bfplus_cli.py status
 
 # Camera must be awake, idle in still shooting live view, and connected by MTP.
 # Installs with Touch Focus Zoom OFF; the original update is read and hashed only.
-.venv/bin/python bf_touch_focus.py install --firmware /path/to/BF__V104.bin
+.venv/bin/python bfplus_cli.py install --firmware /path/to/BF__V104.bin
 
 # Or install with both BF+ options ON:
-.venv/bin/python bf_touch_focus.py install --firmware /path/to/BF__V104.bin --enable --subject-detection
+.venv/bin/python bfplus_cli.py install --firmware /path/to/BF__V104.bin --enable --subject-detection
 
 # Observe physical state and decoded handler events (read-only):
-.venv/bin/python bf_touch_focus.py observe --seconds 60
+.venv/bin/python bfplus_cli.py observe --seconds 60
 
 # Development controls; Settings > BF+ > Touch Focus Zoom is the normal control:
-.venv/bin/python bf_touch_focus.py enable
-.venv/bin/python bf_touch_focus.py disable
+.venv/bin/python bfplus_cli.py enable
+.venv/bin/python bfplus_cli.py disable
 
 # Return to still live view and release the center button before removal:
-.venv/bin/python bf_touch_focus.py remove
+.venv/bin/python bfplus_cli.py remove
 ```
 
 Only the analyzed package is accepted (SHA-256

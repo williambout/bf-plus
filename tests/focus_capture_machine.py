@@ -196,14 +196,14 @@ SECTIONS {{
              "-fno-jump-tables", "-ffunction-sections", "-fdata-sections", "-mcmodel=tiny",
              "-fpie", "-fvisibility=hidden", "-Wall", "-Wextra", "-Werror"]
     objects = []
-    for source in (ROOT / "touch_focus/focus_capture.c", d / "runtime.c"):
+    for source in (ROOT / "bfplus/focus_capture.c", d / "runtime.c"):
         obj = d / (source.stem + ".o")
-        subprocess.run([tools["clang"], *flags, "-I", str(ROOT / "touch_focus"),
+        subprocess.run([tools["clang"], *flags, "-I", str(ROOT / "bfplus"),
                         "-c", str(source), "-o", str(obj)], check=True)
         objects.append(str(obj))
     router = d / "router.o"
     subprocess.run([tools["clang"], "--target=aarch64-none-elf", "-c",
-                    str(ROOT / "touch_focus/focus_sensor_router.S"), "-o", str(router)], check=True)
+                    str(ROOT / "bfplus/focus_sensor_router.S"), "-o", str(router)], check=True)
     elf, binary = d / "resident.elf", d / "resident.bin"
     subprocess.run([tools["ld.lld"], "-T", str(d / "resident.ld"), *objects,
                     str(router), "-o", str(elf)], check=True)

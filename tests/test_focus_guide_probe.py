@@ -2,8 +2,8 @@
 import struct
 import unittest
 
-from bf_focus_guide_probe import read_snapshot, RING, CONTEXTS, CONTEXT_SIZE, CELLS, FLAGS_OFFSET
-from bf_focus_guide_probe import (decode_manual_lenses, read_manual_lenses,
+from bfplus_focus_guide_probe import read_snapshot, RING, CONTEXTS, CONTEXT_SIZE, CELLS, FLAGS_OFFSET
+from bfplus_focus_guide_probe import (decode_manual_lenses, read_manual_lenses,
                                  MANUAL_LENSES, SETTINGS, MANUAL_TABLE_SIZE,
                                  MANUAL_SELECTION_OFFSET)
 

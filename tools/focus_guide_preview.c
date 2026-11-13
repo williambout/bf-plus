@@ -1,6 +1,6 @@
 /* Render the actual guide core to SVG with synthetic measurements. No USB. */
 #include <stdio.h>
-#include "../touch_focus/focus_guide.h"
+#include "../bfplus/focus_guide.h"
 
 static void paint(void *context, const struct FocusGuideMark *m) {
     (void)context;

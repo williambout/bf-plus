@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from bf_camera_files import CameraFiles, object_info, jpeg_size, dng_metadata, inspect_photo
-from bf_touch_ptp import HEADER, DATA, ProtocolError
+from bfplus_camera_files import CameraFiles, object_info, jpeg_size, dng_metadata, inspect_photo
+from bfplus_ptp import HEADER, DATA, ProtocolError
 from tests.test_touch_ptp import FakeUSB, data, response
 
 
@@ -22,8 +22,8 @@ class FileReadTests(unittest.TestCase):
         self.addCleanup(self.context.close)
         self.directory=self.context.enter_context(tempfile.TemporaryDirectory())
         for name in ('claim_interface','release_interface','dispose_resources'):
-            self.context.enter_context(patch('bf_touch_ptp.usb.util.'+name))
-        self.context.enter_context(patch('bf_touch_ptp.usb.core.find',side_effect=AssertionError('no real USB')))
+            self.context.enter_context(patch('bfplus_ptp.usb.util.'+name))
+        self.context.enter_context(patch('bfplus_ptp.usb.core.find',side_effect=AssertionError('no real USB')))
 
     def camera(self,incoming):
         device=FakeUSB(incoming)

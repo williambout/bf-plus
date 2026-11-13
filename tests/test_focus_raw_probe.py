@@ -3,7 +3,7 @@ import struct
 import unittest
 from unittest.mock import patch
 
-import bf_focus_raw_probe as raw
+import bfplus_focus_raw_probe as raw
 
 
 class RawReader:

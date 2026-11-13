@@ -1,6 +1,6 @@
 # Native compact-picker touch adapter — BF 1.04
 
-`touch_focus/native_touch_menus.h` adds bounded tap selection and drag
+`bfplus/native_touch_menus.h` adds bounded tap selection and drag
 navigation to **eight verified compact-picker input families**. It does not
 implement touch for every stock menu, install hooks, rotate the UI, or change
 the shared payload/build. Those are parent integration tasks. No camera,

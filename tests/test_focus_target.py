@@ -9,7 +9,7 @@ import unittest
 
 from unicorn import arm64_const as r
 from tests.test_touch_payload import Machine, FW, RESIDENT, STACK, STOP
-from touch_focus.build import build
+from bfplus.build import build
 
 DETECTOR = 0x4d72f40d8
 SNAPSHOT = 0x4d3270e50

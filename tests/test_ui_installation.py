@@ -12,8 +12,8 @@ from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
 from unicorn import UC_HOOK_CODE
 from unicorn import arm64_const as r
 
-import bf_plus_loader as loader
-from bf_touch_focus import PATCHES, CODE_PATCHES, UI_L2_SLOT, UI_L2_RO
+import bfplus_loader as loader
+from bfplus_cli import PATCHES, CODE_PATCHES, UI_L2_SLOT, UI_L2_RO
 from tests.test_segmented_loader import Machine, BASE, OWNER
 from tests.test_touch_menu import build_menu_fixture
 

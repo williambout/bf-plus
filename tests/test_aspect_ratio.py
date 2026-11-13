@@ -11,8 +11,8 @@ import unittest
 from unicorn import UC_HOOK_CODE
 from unicorn import arm64_const as r
 
-from bf_touch_focus import PATCHES, CODE_PATCHES, ASPECT_SNAPSHOT_SITES, ASPECT_FINGERPRINTS
-from bf_plus_loader import Control
+from bfplus_cli import PATCHES, CODE_PATCHES, ASPECT_SNAPSHOT_SITES, ASPECT_FINGERPRINTS
+from bfplus_loader import Control
 from tests.test_touch_menu import MenuMachine, build_menu_fixture, DEPTH, PENDING
 from tests.test_touch_payload import FW, RESIDENT, STACK, STAGE, STOP
 

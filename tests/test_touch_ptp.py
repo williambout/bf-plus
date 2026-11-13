@@ -15,7 +15,7 @@ from unittest import mock
 
 import usb.core
 
-import bf_touch_ptp as ptp
+import bfplus_ptp as ptp
 
 
 ADDRESS = 0x447581000  # Representative heap staging address, never accessed.

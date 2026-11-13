@@ -13,7 +13,7 @@ import unittest
 
 from unicorn import Uc, UC_ARCH_ARM64, UC_MODE_ARM
 from unicorn import arm64_const as r
-from touch_focus.build import tool
+from bfplus.build import tool
 from tests.test_focus_guide import (Config, Guide, Mark, Sample, Paint, compile_guide,
     HIDDEN, UNAVAILABLE, FAR_LARGE, FAR_SMALL, FOCUSED, NEAR_SMALL, NEAR_LARGE,
     GRAY, WHITE, GREEN, RECT, TRIANGLE)
@@ -42,7 +42,7 @@ class NativeGuidePainterTests(unittest.TestCase):
                         '-fno-asynchronous-unwind-tables', '-mgeneral-regs-only',
                         '-ffixed-x18', '-mcmodel=tiny', '-fpie', '-fvisibility=hidden',
                         '-Wall', '-Wextra', '-Werror', '-c',
-                        str(ROOT/'touch_focus/focus_guide_render.c'), '-o', str(d/'render.o')], check=True)
+                        str(ROOT/'bfplus/focus_guide_render.c'), '-o', str(d/'render.o')], check=True)
         ld = tool('ld.lld', '/opt/homebrew/opt/lld/bin/ld.lld')
         objcopy = tool('llvm-objcopy', '/opt/homebrew/opt/llvm/bin/llvm-objcopy')
         nm = tool('llvm-nm', '/opt/homebrew/opt/llvm/bin/llvm-nm')

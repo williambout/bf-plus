@@ -65,7 +65,7 @@ new touch actions. Their native controls remain available.
 
 ## Display and input transaction
 
-`touch_focus/ui.h` intercepts all four verified native draw callback sites.
+`bfplus/ui.h` intercepts all four verified native draw callback sites.
 Actual draw jobs update retained, unrotated canonical planes. Acquiring an
 image-overlay split can reconstruct UI from bounded render callbacks; native
 input, initializer, update and post callbacks are not replayed for rotation.

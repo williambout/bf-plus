@@ -1,3 +1,2 @@
--r requirements.txt
-capstone==5.0.9
-unicorn==2.1.4
+# Compatibility with earlier setup commands.
+-r requirements-bfplus.txt

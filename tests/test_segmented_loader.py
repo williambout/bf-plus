@@ -15,8 +15,8 @@ from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
 from unicorn import Uc, UC_ARCH_ARM64, UC_MODE_ARM, UC_HOOK_CODE, UC_HOOK_MEM_WRITE, UC_HOOK_MEM_READ
 from unicorn import arm64_const as r
 
-import bf_plus_loader as host
-from touch_focus.loader_build import build, tool, FLAGS, SOURCE
+import bfplus_loader as host
+from bfplus.loader_build import build, tool, FLAGS, SOURCE
 
 BUF = 0x447570000
 STAGE = BUF+host.STAGE_OFFSET

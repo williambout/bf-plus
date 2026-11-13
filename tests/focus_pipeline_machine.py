@@ -98,11 +98,11 @@ def build_pipeline(directory):
              "-fno-jump-tables", "-ffunction-sections", "-fdata-sections", "-mcmodel=tiny",
              "-fpie", "-fvisibility=hidden", "-Wall", "-Wextra", "-Werror"]
     objects = [d / name for name in ("focus_capture.o", "runtime.o", "router.o")]
-    sources = [capture.ROOT / "touch_focus" / name for name in
+    sources = [capture.ROOT / "bfplus" / name for name in
                ("focus_live.c", "focus_guide.c", "focus_guide_render.c", "focus_phase.c")]
     for source in [*sources, d / "pipeline_bridge.c"]:
         obj = d / (source.stem + ".o")
-        subprocess.run([tools["clang"], *flags, "-I", str(capture.ROOT / "touch_focus"),
+        subprocess.run([tools["clang"], *flags, "-I", str(capture.ROOT / "bfplus"),
                         "-c", str(source), "-o", str(obj)], check=True)
         objects.append(obj)
     # Bound the scalar matcher's text so only its entry needs a Python hook.

@@ -1,6 +1,6 @@
 # Mixed Settings list touch — BF V104
 
-`touch_focus/native_touch_settings_list.h` supplies scroll and tap handling for
+`bfplus/native_touch_settings_list.h` supplies scroll and tap handling for
 the private-backed list reached from **normal Settings row 0**. It selects rows
 through the original native dial input and activates only the two native action
 rows through the original center key. Read-only rows remain read-only. Blank

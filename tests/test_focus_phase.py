@@ -8,7 +8,7 @@ import unittest
 
 from unicorn import Uc, UC_ARCH_ARM64, UC_MODE_ARM
 from unicorn import arm64_const as r
-from touch_focus.build import tool
+from bfplus.build import tool
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -42,7 +42,7 @@ class PhaseMatchTests(unittest.TestCase):
         cls.addClassCleanup(cls.directory.cleanup)
         d = Path(cls.directory.name)
         cc = tool('clang', '/opt/homebrew/opt/llvm/bin/clang')
-        source = ROOT/'touch_focus/focus_phase.c'
+        source = ROOT/'bfplus/focus_phase.c'
         subprocess.run([cc, '-std=c11', '-shared', '-fPIC', '-O2', '-Wall', '-Wextra', '-Werror',
                         str(source), '-o', str(d/'phase.dylib')], check=True)
         cls.lib = C.CDLL(str(d/'phase.dylib'))

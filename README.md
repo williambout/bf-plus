@@ -73,7 +73,7 @@ without electronic contacts.
 | Subject detection, target frame, and zoom-position restoration with manual lenses | Confirmed on camera |
 | Extra aspect ratios | Offline navigation/crop checks pass; physical selector and saved-file checks pending |
 
-The full local offline suite passed **399 tests**. Hardware observations and
+The full local offline suite passed **401 tests**. Hardware observations and
 remaining checks are recorded in the [feature guide](docs/TOUCH-FOCUS.md).
 
 The active build uses native landscape rendering and button/dial navigation.
@@ -93,8 +93,8 @@ You need:
 git clone https://github.com/williambout/bf-plus.git
 cd bf-plus
 python3 -m venv .venv
-.venv/bin/pip install -r requirements-touch-focus.txt
-.venv/bin/python bf_touch_focus.py build
+.venv/bin/pip install -r requirements-bfplus.txt
+.venv/bin/python bfplus_cli.py build
 ```
 
 Follow the [USB/MTP setup instructions](docs/ROOT-SHELL.md#2-put-the-camera-in-mtp-mode).
@@ -102,13 +102,13 @@ Return the camera to idle still-photo live view and leave the buttons untouched
 during installation. Check the current state first:
 
 ```sh
-.venv/bin/python bf_touch_focus.py status
+.venv/bin/python bfplus_cli.py status
 ```
 
 For a camera with no BF+ installation currently loaded:
 
 ```sh
-.venv/bin/python bf_touch_focus.py install \
+.venv/bin/python bfplus_cli.py install \
   --firmware /path/to/BF__V104.bin \
   --enable --subject-detection
 ```
@@ -121,7 +121,7 @@ To remove a loaded build, return to still-photo live view, release the center
 button, and run:
 
 ```sh
-.venv/bin/python bf_touch_focus.py remove
+.venv/bin/python bfplus_cli.py remove
 ```
 
 Keep the generated `.touch-focus/` directory until removal: it records the
@@ -148,11 +148,16 @@ binaries. Firmware files, generated builds, and local camera records stay ignore
 
 | Path | Purpose |
 | --- | --- |
-| [`touch_focus/`](touch_focus/) | Resident feature code, menus, and build tools |
-| [`bf_touch_focus.py`](bf_touch_focus.py) | Build, status, install, and removal CLI |
-| [`bf_plus_loader.py`](bf_plus_loader.py) | Verified, bounded RAM loading |
-| [`bf_camera_files.py`](bf_camera_files.py) | Read-only JPEG/DNG download and metadata inspection |
+| [`bfplus/`](bfplus/) | Resident feature code, menus, and build tools |
+| [`bfplus_cli.py`](bfplus_cli.py) | Build, status, install, and removal CLI |
+| [`bfplus_loader.py`](bfplus_loader.py) | Verified, bounded RAM loading |
+| [`bfplus_ptp.py`](bfplus_ptp.py) | Shared USB transport, locking, and write cooldowns |
+| [`bfplus_camera_files.py`](bfplus_camera_files.py) | Read-only JPEG/DNG download and metadata inspection |
 | [`tests/`](tests/) | Host, emulation, menu, and crop checks |
+
+The earlier Python command and import names remain compatibility aliases.
+Existing `.touch-focus/` installation records and transport locks continue to
+be used by both names.
 
 ## Documentation and origins
 

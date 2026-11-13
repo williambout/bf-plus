@@ -4,7 +4,7 @@ This implements the RAM-loading portion of
 [BFPLUS-PACKAGE-INTERFACE.md](BFPLUS-PACKAGE-INTERFACE.md). It separates the
 small storage-callback bootstrap from the resident image and supports multiple
 bounded transfers without increasing the resident's 64 KiB limit. The
-`bf_touch_focus.py` CLI now uses it for new installations and preserves legacy
+`bfplus_cli.py` CLI now uses it for new installations and preserves legacy
 status/removal. Offline tests cover loader and transport failure paths. A fresh
 4 KiB-transfer installation was completed on BF 1.04 on 2026-11-13, including
 full readback, COMMIT, installed-code/hook/settings checks and USB closure.
@@ -19,18 +19,18 @@ that block when staging a command, leaving the launcher and code identical.
 
 ## Files and build boundary
 
-- `touch_focus/loader_abi.h`: versioned control, guard, operation and result ABI.
-- `touch_focus/loader.c`, `loader.ld`: standalone bootstrap; no resident UI hooks.
-- `touch_focus/loader_build.py`: isolated loader compiler/linker and layout checks.
-- `bf_plus_loader.py`: host protocol helpers with caller-supplied verification.
+- `bfplus/loader_abi.h`: versioned control, guard, operation and result ABI.
+- `bfplus/loader.c`, `loader.ld`: standalone bootstrap; no resident UI hooks.
+- `bfplus/loader_build.py`: isolated loader compiler/linker and layout checks.
+- `bfplus_loader.py`: host protocol helpers with caller-supplied verification.
 - `tests/test_segmented_loader.py`: compiled AArch64 and host/emulator tests.
-- `bf_touch_focus.py`, `tests/test_touch_cli.py`: CLI, durable package manifest,
+- `bfplus_cli.py`, `tests/test_touch_cli.py`: CLI, durable package manifest,
   immutable artifact storage, UI drain, and legacy compatibility.
 
 Build or test entirely offline:
 
 ```sh
-.venv/bin/python -m touch_focus.loader_build
+.venv/bin/python -m bfplus.loader_build
 .venv/bin/python -m unittest tests.test_segmented_loader -v
 ```
 
@@ -173,8 +173,8 @@ uncertain operation; failed/incomplete allocations remain retained.
 
 ## Host API and integration
 
-`bf_plus_loader` imports neither `bf_touch_focus` nor USB libraries. It accepts
-an already-open `bf_touch_ptp.PTP` context. All writes go through its existing
+`bfplus_loader` imports neither `bfplus_cli` nor USB libraries. It accepts
+an already-open `bfplus_ptp.PTP` context. All writes go through its existing
 `write()` method, preserving the workspace process lock and durable cooldown.
 The helpers hold that same context's `_io_lock` across each operation (across
 the whole sequence for `execute`). Actual segmented READ and WRITE payloads
@@ -229,8 +229,8 @@ USB reconnect clears neither the old allocation nor the uncertain manifest.
 Construct the immutable inputs and supply parent verification callbacks:
 
 ```python
-from bf_plus_loader import LoaderArtifact, ResidentImage, Checks, execute, remove
-from touch_focus.loader_build import build as build_loader
+from bfplus_loader import LoaderArtifact, ResidentImage, Checks, execute, remove
+from bfplus.loader_build import build as build_loader
 
 loader_bytes, loader_symbols = build_loader()  # temporary offline build
 loader = LoaderArtifact(loader_bytes, loader_symbols)
@@ -309,7 +309,7 @@ hardware-unverified.
 
 ## CLI package and removal integration
 
-`bf_touch_focus.py build` builds both artifacts offline and prints resident
+`bfplus_cli.py build` builds both artifacts offline and prints resident
 layout, symbols and the loader identity. New `install` operations verify the
 original firmware package and native fingerprints, then use segmented
 `execute()` with the shared PTP transport. The legacy `execute()` function

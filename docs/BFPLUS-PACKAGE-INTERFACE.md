@@ -1,6 +1,6 @@
 # BF+ package interface
 
-The segmented RAM loader and `bf_touch_focus.py` implement this contract using
+The segmented RAM loader and `bfplus_cli.py` implement this contract using
 the `bfplus-segmented-v1` manifest and loader ABI 1. The implementation is tested
 offline; it is not a flashable firmware format or a claim of camera installation.
 See [SEGMENTED-LOADER.md](SEGMENTED-LOADER.md) for the binary ABI, host API,
@@ -16,7 +16,7 @@ entry point. The two binaries can be built together but should have independent
 identities and symbol maps.
 
 The versioned package descriptor has these semantics. The C ABI is defined in
-`touch_focus/loader_abi.h`; the CLI records its native receipt in `loader_record`.
+`bfplus/loader_abi.h`; the CLI records its native receipt in `loader_record`.
 
 | Item | Required meaning |
 | --- | --- |
@@ -92,7 +92,7 @@ and original single-image removal path; no current build is used to remove one.
 
 Native aspect call-site tables are read from the same restricted
 `ASPECT_NATIVE_STEP_CALLS`, `ASPECT_NATIVE_LABEL_CALLS` and
-`ASPECT_NATIVE_SUBLCD_CALLS` macros in `touch_focus/aspect_ratio.h` that the
+`ASPECT_NATIVE_SUBLCD_CALLS` macros in `bfplus/aspect_ratio.h` that the
 resident compiler uses. Parsing rejects malformed syntax and duplicate sites;
 installation rechecks the header before any write. New builds contain no
 global UI compositor, rotation adapters or LCD menu-input hooks.
