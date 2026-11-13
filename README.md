@@ -64,11 +64,13 @@ an option change. Version is read-only.
 
 ## Current status
 
+The focus-feature confirmations below apply to fully manual lenses or adapters
+without electronic contacts.
+
 | Area | Validation |
 | --- | --- |
-| Touch-to-zoom and release | Confirmed on camera |
-| Subject detection, target frame, and zoom-position restoration | Confirmed on camera |
-| Current BF+ 1.0 build | Installed; code, hooks, permissions, and settings verified |
+| Touch-to-zoom and release with manual lenses | Confirmed on camera |
+| Subject detection, target frame, and zoom-position restoration with manual lenses | Confirmed on camera |
 | Extra aspect ratios | Offline navigation/crop checks pass; physical selector and saved-file checks pending |
 
 The full local offline suite passed **399 tests**. Hardware observations and
