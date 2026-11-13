@@ -72,13 +72,16 @@ ASPECT_PATCHES = (
 # Keep the second page check and saved-ABI drain/status helpers for removing
 # archived UI builds. No rotation/touch hooks are part of a new installation.
 UI_L2_SLOT, UI_L2_RO = 0x4d71484c0, 0x4d3000781
-PATCHES = BASE_PATCHES + ASPECT_PATCHES
+PATCHES = BASE_PATCHES + ASPECT_PATCHES + ((0x4d3320848, 0, 'doom_receive_wrapper'),)
 ASPECT_SNAPSHOT_SITES = (0x4d324358c,0x4d3243ac4,0x4d3244174,0x4d3244280,
                          0x4d324447c,0x4d3244820,0x4d3244b50)
 
 # The raw-setting veneer keeps its original behavior except for this one
 # detector caller. Reconstructed branch encodings, not extracted code blobs.
 CODE_PATCHES = (
+    (0x4d3320840, branch_instruction(0x4d3320840,0x4d3317610), 0xd61f020058000050, 8),
+    (0x4d3323ac0, branch_instruction(0x4d3323ac0,0x4d3033a50,True),
+     branch_instruction(0x4d3323ac0,0x4d3320840,True), 4),
     (0x4d3321270, branch_instruction(0x4d3321270,0x4d3318500), 0xd61f020058000050, 8),
     (0x4d326dcd4, branch_instruction(0x4d326dcd4,0x4d31559d0,True),
      branch_instruction(0x4d326dcd4,0x4d3321270,True), 4),
@@ -139,6 +142,13 @@ NATIVE_ASPECT_CODE_PATCHES = native_aspect_code_patches()
 CODE_PATCHES += NATIVE_ASPECT_CODE_PATCHES
 # SHA-256 of 32-byte function prefixes; no extracted firmware is distributed.
 FINGERPRINTS = {
+    # Optional Doom filesystem and UI timer adapters.
+    0x4d313b9e0: 'e9cabb0bda3d18ec10e574960627de2821f9b233cfc2ca6692d05efdf0f44807',
+    0x4d313bb50: 'c4746b6041b3158746ce636bc71630962bbe39304bf4ee6431d9e5a8929a12d2',
+    0x4d313baf0: 'b0b83d3238553d5ba2adb937352aaad688b41b5ebffc612519794d4132da592b',
+    0x4d31a5c00: 'f6d7a1f8f250ab9769b2ae147717e006607d7c7fd115b5e9f49a585b23d2578f',
+    0x4d3033a50: 'd84a395e7f286dde833366ae059749e6d810ad6705399d3816c8e65965a42c36',
+    0x4d3033ab0: '4776b2b8db81d8a4f61d3fb13cb7b02fbb02cd359aee6492715c35c2ba9907cf',
     0x4d31254f0: 'ea4c602267662e5c09a93ad7ae29bb8350bf2d4775bde6aceaf3aba14352b87b',
     0x4d3398940: '0e46219d5ea1aac8aec998a6937fff4cc7346fcccd099f879fd59a76fc3d4379',
     0x4d33a1670: 'ba843ac224700ef2109d8749a1db9379dfaea2dff22af5c36327d9253b673006',
@@ -581,6 +591,7 @@ def install(p, firmware, enabled=False, subject_detection=False):
                       'permissions':[[L2_SLOT,L2_RO],[UI_L2_SLOT,UI_L2_RO]]},
             'features':{'touch_zoom':bool(enabled),'mf_subject_detection':bool(subject_detection),
                         'aspect_ratios':True,'extra_aspect_ratios_default':False,
+                        'doom':True,'doom_requires_package':'DOOM.BFP',
                         'touch_menus':False,'auto_rotate_ui':False,'focus_guide':False,'validation':'offline; hardware pending'}}
     save_manifest(record)
     say(f'Loading {len(blob)} resident bytes through the {len(artifact.image)}-byte segmented loader. '
@@ -713,6 +724,16 @@ def status(p):
                       mode=u32(s,12),active=u32(s,32),
                       held=u32(s,36),events=u32(s,48),replay_errors=u32(s,56),exit_errors=u32(s,60))
         if 'features' in m: result['installed_features']=m['features']
+        if 'doom_game' in m['symbols'] and m.get('features',{}).get('doom'):
+            offset=m['symbols']['doom_game']
+            require(type(offset) is int and m['symbols']['__bss_start']<=offset<=m['symbols']['__end']-40,
+                    'Saved Doom status is outside resident BSS')
+            d=p.read(m['resident']+offset,40)
+            result['doom']={'active':bool(u32(d)),
+                'state':{0:'not_started',1:'loading',2:'running',3:'error',4:'closed'}.get(u32(d,12),'unknown'),
+                'error':{0:None,1:'package_not_found',2:'invalid_package',3:'allocation_failed',
+                         4:'restart_for_larger_package',5:'engine_error'}.get(u32(d,24),'unknown'),
+                'last_frame_request_ms':u32(d,36)}
         orientation=ui_status(p,m)
         if orientation is not None: result['auto_rotate_ui']=orientation
         if 'focus_target' in m['symbols']:

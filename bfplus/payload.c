@@ -262,7 +262,8 @@ static int idle_still_scene(void) {
     X(aspect_dng_wrapper,0) \
     X(aspect_release_wrapper,0) \
     X(aspect_reserve_wrapper,0) \
-    X(aspect_view,ASPECT_VIEW_TABLE)
+    X(aspect_view,ASPECT_VIEW_TABLE) \
+    X(doom_receive_wrapper,0)
 #define PATCH_ENUM(name,original) PATCH_##name,
 enum { PATCH_TARGETS(PATCH_ENUM) PATCH_TARGET_COUNT };
 #undef PATCH_ENUM
@@ -327,9 +328,11 @@ static __attribute__((minsize)) int patch_all(uptr base, int install, u64 ctr) {
         {(u32)(0x4d32697f8ULL-0x4d3000000ULL),PATCH_aspect_view,0},
         {(u32)(0x4d3269828ULL-0x4d3000000ULL),PATCH_aspect_view,0},
         {(u32)(0x4d3269878ULL-0x4d3000000ULL),PATCH_aspect_view,0},
+        {(u32)(DOOM_ISLAND+8-0x4d3000000ULL),PATCH_doom_receive_wrapper,0},
     };
     const u32 patch_count=sizeof(p)/sizeof(p[0]);
     static const struct { uptr address; u64 original; } islands[]={
+        {DOOM_ISLAND,DOOM_ISLAND_OLD},
         {DETECTOR_ISLAND,DETECTOR_ISLAND_OLD},
         {SUBJECT_FRAME_ISLAND,SUBJECT_FRAME_OLD},
         {ASPECT_RAW,ASPECT_RAW_OLD},
@@ -344,6 +347,7 @@ static __attribute__((minsize)) int patch_all(uptr base, int install, u64 ctr) {
         {ASPECT_RESERVE_ISLAND,ASPECT_RESERVE_OLD},
     };
     static const struct { uptr address; u32 original,replacement; } calls[]={
+        {DOOM_RECEIVE_CALL,A64_BRANCH(DOOM_RECEIVE_CALL,0x4d3033a50ULL,1),A64_BRANCH(DOOM_RECEIVE_CALL,DOOM_ISLAND,1)},
         {DETECTOR_CALL,DETECTOR_CALL_OLD,DETECTOR_CALL_NEW},
         {ASPECT_LABEL_CALL,ASPECT_LABEL_CALL_OLD,ASPECT_LABEL_CALL_NEW},
         {ASPECT_META_CALL,ASPECT_META_CALL_OLD,ASPECT_META_CALL_NEW},
@@ -450,7 +454,7 @@ u32 resident_entry(u32 operation, const struct LoaderControl *request, u64 ctr) 
     }
     if (operation!=LOADER_REMOVE_ENTRY || state.magic!=MAGIC || state.version!=1 ||
         state.nonce!=request->identity_nonce || state.owner!=request->owner) return 8;
-    if (state.active) return 9;
+    if (state.active || doom_game.active) return 9;
     if (!aspect_seal(base)) return 12;
     u32 result=patch_all(base,0,ctr) ? 0 : 6;
     if (!result) {

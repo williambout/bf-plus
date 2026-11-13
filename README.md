@@ -1,6 +1,6 @@
 # BF+
 
-Manual-focus controls and extra aspect ratios for the **SIGMA BF**.
+Manual-focus controls, extra aspect ratios, and Doom for the **SIGMA BF**.
 
 BF+ 1.0 adds a native-style **Settings → BF+** submenu to firmware **1.04**.
 Touch the center button to check focus, center magnification on a detected
@@ -48,6 +48,16 @@ Cropped JPEG output and DNG crop metadata are implemented and tested offline;
 RAW pixels remain intact. **Native selector interaction and real saved-photo
 crops still need camera validation.** See [aspect-ratio details](docs/ASPECT-RATIOS.md).
 
+### Doom
+
+Launch the original Doom engine from **Settings → BF+ → Doom**. Use the camera
+buttons to move and fire, and press Playback to return to BF+. The game runs
+locally with a separately installed game package; the original shareware first
+episode is supported. This initial port is silent, with no saved games.
+
+Offline engine, package, and camera-scene checks pass; physical camera validation is pending.
+See [Doom setup and controls](docs/DOOM.md).
+
 ## On-camera menu
 
 ```text
@@ -55,6 +65,7 @@ Settings → BF+
   Touch Focus Zoom      OFF / ON
   MF Subject Detection  OFF / ON
   Extra Aspect Ratios   OFF / ON
+  Doom                  Launch
   Version               1.0
 ```
 
@@ -73,7 +84,7 @@ without electronic contacts.
 | Subject detection, target frame, and zoom-position restoration with manual lenses | Confirmed on camera |
 | Extra aspect ratios | Offline navigation/crop checks pass; physical selector and saved-file checks pending |
 
-The full local offline suite passed **401 tests**. Hardware observations and
+The full local offline suite passed **466 tests**, with two additional upload-streaming checks passing afterward. Hardware observations and
 remaining checks are recorded in the [feature guide](docs/TOUCH-FOCUS.md).
 
 The active build uses native landscape rendering and button/dial navigation.
@@ -153,7 +164,8 @@ binaries. Firmware files, generated builds, and local camera records stay ignore
 | [`bfplus_loader.py`](bfplus_loader.py) | Verified, bounded RAM loading |
 | [`bfplus_ptp.py`](bfplus_ptp.py) | Shared USB transport, locking, and write cooldowns |
 | [`bfplus_camera_files.py`](bfplus_camera_files.py) | Read-only JPEG/DNG download and metadata inspection |
-| [`tests/`](tests/) | Host, emulation, menu, and crop checks |
+| [`bfplus_doom.py`](bfplus_doom.py) | Doom packaging, validation, and standard MTP upload |
+| [`tests/`](tests/) | Host, emulation, menu, game, and crop checks |
 
 The earlier Python command and import names remain compatibility aliases.
 Existing `.touch-focus/` installation records and transport locks continue to
@@ -164,6 +176,7 @@ be used by both names.
 - [BF+ feature and installation guide](docs/TOUCH-FOCUS.md)
 - [MF Subject Detection](docs/MF-SUBJECT-DETECTION.md)
 - [Extra Aspect Ratios](docs/ASPECT-RATIOS.md)
+- [Doom setup and controls](docs/DOOM.md)
 - [Segmented RAM loader](docs/SEGMENTED-LOADER.md)
 - [USB/MTP and root-shell tools](docs/ROOT-SHELL.md)
 - [Custom firmware research](docs/CUSTOM-FIRMWARE.md) — boot integration remains unimplemented.

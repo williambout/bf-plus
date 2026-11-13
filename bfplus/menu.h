@@ -36,7 +36,7 @@ u64 menu_callbacks[6];
 /* Scene descriptor: init, resume, suspend, exit; copied by stock push/pop.
  * Init/resume: u32(next_scene[4], handlers[2], u32 unwind). Exit/suspend: u32(). */
 u64 menu_parent_scene[4], menu_submenu_scene[4], menu_submenu_callbacks[3];
-struct MenuRow menu_submenu_rows[4];
+struct MenuRow menu_submenu_rows[5];
 struct MenuTitle { u16 y; u8 unused[6]; const char *text; u8 back, pad[7]; };
 _Static_assert(sizeof(struct MenuTitle)==24, "stock submenu title ABI");
 static struct MenuTitle menu_submenu_title;
@@ -70,6 +70,7 @@ static const char menu_label[] __attribute__((used))="BF+";
 static const char menu_option[] __attribute__((used))="\x1b\x06" "Touch Focus Zoom";
 static const char menu_subject_option[] __attribute__((used))="\x1b\x06" "MF Subject Detection";
 static const char menu_aspect_option[] __attribute__((used))="\x1b\x06" "Extra Aspect Ratios";
+static const char menu_doom_label[] __attribute__((used))="\x1b\x06" "Doom";
 static const char menu_version_label[] __attribute__((used))="\x1b\x06" "Version";
 static const char menu_version_value[] __attribute__((used))="1.0";
 /* Uppercase option values share native font6 with the Title Case row labels.
@@ -122,7 +123,9 @@ static void menu_refresh_submenu(void) {
     menu_submenu_rows[2].flags=(u8)(2 | (menu_view.selected==2));
     menu_submenu_rows[2].value=aspect_extra_enabled ? menu_picker_on : menu_picker_off;
     /* Stock special style omits the editing chevron on the read-only row. */
-    menu_submenu_rows[3].flags=(u8)(0x12 | (menu_view.selected==3));
+    menu_submenu_rows[3].flags=(u8)(2 | (menu_view.selected==3));
+    menu_submenu_rows[3].value=0;
+    menu_submenu_rows[4].flags=(u8)(0x12 | (menu_view.selected==4));
 }
 static void menu_queue(void) {
     ((void (*)(const u64 *,const void *,u32))(uptr)0x4d3322d90ULL)(
@@ -230,6 +233,8 @@ u32 menu_input_wrapper(struct Event *e) {
     return result;
 }
 
+#include "doom_scene.h"
+
 static u32 menu_child_input(struct Event *e, u32 picker) {
     if (state.mode==2 || !(picker ? menu_picker_active : menu_view.active) || !e ||
         W(MENU_DEPTH)!=menu_view.parent_depth+1+picker || W(MENU_PENDING)!=12) return 0;
@@ -269,7 +274,7 @@ static u32 menu_child_input(struct Event *e, u32 picker) {
         u32 redraw=0;
         if (direction) {
             u32 old=picker ? menu_picker.selected : menu_view.selected;
-            u32 selected=old, count=picker ? menu_picker.count : 4;
+            u32 selected=old, count=picker ? menu_picker.count : 5;
             if (direction>0 && selected+1<count) selected++;
             if (direction<0 && selected) selected--;
             redraw=old!=selected;
@@ -290,6 +295,8 @@ static u32 menu_child_input(struct Event *e, u32 picker) {
                     else if (menu_view.selected==2) aspect_extra_select(value);
                 }
                 ((int (*)(void))(uptr)0x4d3324250ULL)();
+            } else if (menu_view.selected==3) {
+                doom_open();
             } else if (menu_view.selected<3 && W(MENU_DEPTH)<11) {
                 ((int (*)(const u64 *))(uptr)0x4d3324110ULL)(menu_picker_scene);
             }
@@ -371,7 +378,7 @@ static u32 menu_submenu_paint(void *surface, u32 background) {
         surface,viewport,background ? 0x228080ff : 0);
     ((void (*)(void *,const void *))(uptr)(background ? 0x4d3363c60ULL : 0x4d3363ca0ULL))(
         surface,&menu_submenu_title);
-    for (u32 i=0;i<4;i++)
+    for (u32 i=0;i<5;i++)
         ((void (*)(void *,const void *))(uptr)(background ? 0x4d3363d80ULL : 0x4d3363df0ULL))(
             surface,&menu_submenu_rows[i]);
     if (!background) ((void (*)(void *,u32,u32,u32))(uptr)0x4d335d4b0ULL)(surface,0x2f,0,0);
@@ -450,6 +457,7 @@ u32 menu_initial_draw_wrapper(void *surface, void *params, u32 len) {
 /* Immutable resident pointers use link-relative pairs, so initialization stays
  * compact without absolute relocations. Each word is relative to itself. */
 extern const int menu_fixups[] __attribute__((visibility("hidden")));
+extern const int menu_fixups_end[] __attribute__((visibility("hidden")));
 __asm__(".pushsection .rodata.menu_fixups,\"a\"\n.balign 4\n"
         ".global menu_fixups\n.hidden menu_fixups\nmenu_fixups:\n"
         ".long menu_rows+328 - ., menu_label - .\n"
@@ -467,8 +475,15 @@ __asm__(".pushsection .rodata.menu_fixups,\"a\"\n.balign 4\n"
         ".long menu_submenu_rows+8 - ., menu_option - .\n"
         ".long menu_submenu_rows+40 - ., menu_subject_option - .\n"
         ".long menu_submenu_rows+72 - ., menu_aspect_option - .\n"
-        ".long menu_submenu_rows+104 - ., menu_version_label - .\n"
-        ".long menu_submenu_rows+112 - ., menu_version_value - .\n"
+        ".long menu_submenu_rows+104 - ., menu_doom_label - .\n"
+        ".long menu_submenu_rows+136 - ., menu_version_label - .\n"
+        ".long menu_submenu_rows+144 - ., menu_version_value - .\n"
+        ".long doom_scene+0 - ., doom_enter - .\n"
+        ".long doom_scene+8 - ., doom_resume - .\n"
+        ".long doom_scene+16 - ., doom_leave - .\n"
+        ".long doom_scene+24 - ., doom_leave - .\n"
+        ".long doom_callbacks+0 - ., doom_foreground - .\n"
+        ".long doom_callbacks+8 - ., doom_background - .\n"
         ".long menu_submenu_title+8 - ., menu_label - .\n"
         ".long menu_picker+32 - ., menu_picker_disabled - .\n"
         ".long menu_picker_scene+0 - ., menu_picker_enter - .\n"
@@ -479,6 +494,7 @@ __asm__(".pushsection .rodata.menu_fixups,\"a\"\n.balign 4\n"
         ".long menu_picker_callbacks+8 - ., menu_picker_background_wrapper - .\n"
         ".long menu_picker_callbacks+24 - ., menu_picker_initial_draw_wrapper - .\n"
         ".long menu_picker_callbacks+32 - ., menu_picker_initial_background_wrapper - .\n"
+        ".global menu_fixups_end\n.hidden menu_fixups_end\nmenu_fixups_end:\n"
         ".popsection\n");
 
 /* Bootstrap has zeroed the resident BSS before this one-time initializer. */
@@ -501,7 +517,7 @@ void menu_initialize(uptr base) {
     volatile struct MenuTitle *title=(volatile struct MenuTitle *)(uptr)relocate(&menu_submenu_title,base);
     volatile u64 *labels=(volatile u64 *)(uptr)relocate(menu_picker_labels,base);
 
-    for (u32 i=0;i<4;i++) {
+    for (u32 i=0;i<5;i++) {
         option[i].y=(u16)(142+90*i); option[i].flags=2; option[i].value_font=6;
     }
     option->flags=3;
@@ -513,7 +529,7 @@ void menu_initialize(uptr base) {
 
     volatile u32 *extra=(volatile u32 *)(uptr)relocate((const void *)&aspect_extra_enabled,base);
     option[2].value=(const char *)(uptr)relocate(*extra ? menu_picker_on : menu_picker_off,base);
-    option[3].flags=0x12;
+    option[4].flags=0x12;
     volatile u64 *callbacks=(volatile u64 *)(uptr)relocate(menu_callbacks,base);
     callbacks[1]=0x4d3372680ULL; callbacks[4]=0x4d3372f50ULL;
 
@@ -524,8 +540,7 @@ void menu_initialize(uptr base) {
     picker->selected=picker->committed=(u8)(s->mode==1); picker->previous=255;
     picker->labels=(const char *const *)labels;
 
-    for (u32 i=0;i<54;i+=2) {
-        const int *at=menu_fixups+i;
+    for (const int *at=menu_fixups;at<menu_fixups_end;at+=2) {
         Q(relocate((const u8 *)at+at[0],base))=
             relocate((const u8 *)(at+1)+at[1],base);
     }

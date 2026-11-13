@@ -39,6 +39,7 @@ def build_menu_fixture():
             if name in copied: continue
             copied.add(name)
             raw=(builder.ROOT/'bfplus'/name).read_bytes()
+            (target/name).parent.mkdir(parents=True,exist_ok=True)
             (target/name).write_bytes(raw)
             if name.endswith(('.c','.h')):
                 pending.extend(re.findall(r'^\s*#\s*include\s+"([^"]+)"',raw.decode(),re.M))
@@ -840,8 +841,11 @@ class MenuTests(unittest.TestCase):
         self.assertEqual((aspect[0], aspect[1], aspect[6]), (322, 2, 6))
         self.assertEqual(m.text(aspect[4]), b'\x1b\x06Extra Aspect Ratios')
         self.assertEqual(m.text(aspect[5]), OFF)
-        version = ROW.unpack(m.read(address('menu_submenu_rows')+96, 32))
-        self.assertEqual((version[0], version[1], version[6]), (412, 0x12, 6))
+        doom = ROW.unpack(m.read(address('menu_submenu_rows')+96, 32))
+        self.assertEqual((doom[0],doom[1],doom[5]),(412,2,0))
+        self.assertEqual(m.text(doom[4]),b'\x1b\x06Doom')
+        version = ROW.unpack(m.read(address('menu_submenu_rows')+128, 32))
+        self.assertEqual((version[0], version[1], version[6]), (502, 0x12, 6))
         self.assertEqual(m.text(version[4]), b'\x1b\x06Version')
         self.assertEqual(m.text(version[5]), b'1.0')
 
@@ -944,7 +948,7 @@ class MenuTests(unittest.TestCase):
         m = self.m
         m.enter_submenu()
         m.run(RESIDENT+self.syms['menu_submenu_background_wrapper'], SURFACE, PARAMS, 0)
-        self.assertEqual([c[0] for c in m.calls], ['background', 'title'] + ['row_background']*4)
+        self.assertEqual([c[0] for c in m.calls], ['background', 'title'] + ['row_background']*5)
         self.assertEqual(m.calls[0], ('background', SURFACE, (0, 52, 1024, 630), 0x228080ff))
         self.assertEqual(m.calls[1], ('title', 0x4d3363c60, SURFACE, 52, b'BF+', 1))
         self.assertEqual(m.calls[2][2][1], 3)
@@ -953,7 +957,7 @@ class MenuTests(unittest.TestCase):
                 m.calls.clear()
                 m.mode = mode
                 m.run(RESIDENT+self.syms['menu_submenu_draw_wrapper'], SURFACE, PARAMS, 0)
-                self.assertEqual([c[0] for c in m.calls], ['rect', 'title']+['paint']*4+['status'])
+                self.assertEqual([c[0] for c in m.calls], ['rect', 'title']+['paint']*5+['status'])
                 self.assertEqual(m.calls[1], ('title', 0x4d3363ca0, SURFACE, 52, b'BF+', 1))
                 row = m.calls[2][3]
                 self.assertEqual(m.text(row[4]), b'\x1b\x06Touch Focus Zoom')
@@ -964,7 +968,7 @@ class MenuTests(unittest.TestCase):
                 aspect = m.calls[4][3]
                 self.assertEqual(m.text(aspect[4]), b'\x1b\x06Extra Aspect Ratios')
                 self.assertEqual(m.text(aspect[5]), OFF)
-                version = m.calls[5][3]
+                version = m.calls[6][3]
                 self.assertEqual(m.text(version[4]), b'\x1b\x06Version')
                 self.assertEqual(m.text(version[5]), b'1.0')
                 self.assertEqual(m.calls[-1], ('status', SURFACE, 47, 0, 0))
@@ -1005,9 +1009,10 @@ class MenuTests(unittest.TestCase):
         for args, expected in (({'changed': 8, 'press': 8}, 1),
                                ({'changed': 8, 'press': 8}, 2),
                                ({'changed': 8, 'press': 8}, 3),
-                               ({'changed': 8, 'press': 8}, 3),
-                               ({'changed': 8, 'press': 8}, 3),
-                               ({'changed': 5, 'press': 5}, 3),
+                               ({'changed': 8, 'press': 8}, 4),
+                               ({'changed': 8, 'press': 8}, 4),
+                               ({'changed': 5, 'press': 5}, 4),
+                               ({'key': False, 'dial': (-3, 21)}, 3),
                                ({'key': False, 'dial': (-3, 21)}, 2),
                                ({'key': False, 'dial': (-3, 21)}, 1),
                                ({'key': False, 'dial': (-3, 21)}, 0),
@@ -1021,8 +1026,9 @@ class MenuTests(unittest.TestCase):
                 self.assertEqual(m.get(rows+2, 1), 2 | (expected == 0))
                 self.assertEqual(m.get(rows+34, 1), 2 | (expected == 1))
                 self.assertEqual(m.get(rows+66, 1), 2 | (expected == 2))
-                self.assertEqual(m.get(rows+98, 1), 0x12 | (expected == 3))
-                self.assertEqual(m.text(m.get(rows+112)), b'1.0')
+                self.assertEqual(m.get(rows+98, 1), 2 | (expected == 3))
+                self.assertEqual(m.get(rows+130, 1), 0x12 | (expected == 4))
+                self.assertEqual(m.text(m.get(rows+144)), b'1.0')
                 self.assertNotIn('push', [c[0] for c in m.calls])
                 if 'dial' in args:
                     self.assertIsNone(m.inputs[-1]['parts'][0])
@@ -1337,6 +1343,7 @@ class MenuTests(unittest.TestCase):
                     (5, b'\x1b\x06Touch Focus Zoom'): (60, b'Touch Focus Zoom'),
                     (5, b'\x1b\x06MF Subject Detection'): (60, b'MF Subject Detection'),
                     (5, b'\x1b\x06Extra Aspect Ratios'): (60, b'Extra Aspect Ratios'),
+                    (5, b'\x1b\x06Doom'): (60, b'Doom'),
                     (5, b'\x1b\x06Version'): (60, b'Version'),
                     (6, ON): (60, b'ON'), (6, OFF): (60, b'OFF'),
                     (6, b'1.0'): (60, b'1.0')}
@@ -1387,7 +1394,7 @@ class MenuTests(unittest.TestCase):
                 self.assertEqual(m.run(FONT_FAMILY,60),5)
                 for i, text in enumerate(expected):
                     self.assertEqual(m.get(rows+32*i+24,4),6)
-                    pointer_slot = rows+32*i+16
+                    pointer_slot = rows+32*(i if i<3 else 4)+16
                     width = m.run(TEXT_WIDTH,6,pointer_slot,0)
                     height = m.run(TEXT_HEIGHT,6,pointer_slot)
                     self.assertEqual(height,60)
@@ -1474,7 +1481,7 @@ class MenuTests(unittest.TestCase):
         self.assertEqual(m.get(RESIDENT+self.syms['menu_view']+4,4),1)
         self.assertEqual(m.get(RESIDENT+self.syms['menu_picker_active'],4),0)
         rows = [c for c in m.calls if c[0]=='paint']
-        self.assertEqual([m.text(c[3][5]) for c in rows],[ON,OFF,OFF,b'1.0'])
+        self.assertEqual([m.text(c[3][5]) if c[3][5] else None for c in rows],[ON,OFF,OFF,None,b'1.0'])
         # Reopen, choose OFF and confirm; resume repaints the new private value.
         m.send(submenu=True, changed=1, press=1)
         m.run(0x4d3323ca0, dispatch)
@@ -1486,7 +1493,7 @@ class MenuTests(unittest.TestCase):
         self.assertEqual((m.get(DEPTH,4),m.get(PENDING,4)),(5,12))
         self.assertEqual(m.get(dispatch),RESIDENT+self.syms['menu_submenu_input_wrapper'])
         rows = [c for c in m.calls if c[0]=='paint']
-        self.assertEqual([m.text(c[3][5]) for c in rows],[OFF,OFF,OFF,b'1.0'])
+        self.assertEqual([m.text(c[3][5]) if c[3][5] else None for c in rows],[OFF,OFF,OFF,None,b'1.0'])
         # The second option has an independent value and retains its row on
         # native resume. Cancel, then confirm, while Touch focus zoom is OFF.
         target = RESIDENT+self.syms['focus_target']
@@ -1505,8 +1512,8 @@ class MenuTests(unittest.TestCase):
             self.assertEqual(m.get(view+16,4),1)
             self.assertEqual((m.mode,m.get(target,4)),(0,int(confirm)))
             rows = [c for c in m.calls if c[0]=='paint']
-            self.assertEqual([m.text(c[3][5]) for c in rows],
-                             [OFF,ON if confirm else OFF,OFF,b'1.0'])
+            self.assertEqual([m.text(c[3][5]) if c[3][5] else None for c in rows],
+                             [OFF,ON if confirm else OFF,OFF,None,b'1.0'])
         m.send(submenu=True, changed=2, touch=2, press=2)
         self.assertEqual(m.get(PENDING, 4), 4)
         self.assertEqual(m.read(PENDING_SCENE, 32), m.read(parent, 32))
@@ -1548,7 +1555,7 @@ class MenuTests(unittest.TestCase):
     def test_readonly_version_rejects_stale_picker_entry(self):
         m=self.m
         m.enter_picker(row=2)
-        m.put(RESIDENT+self.syms['menu_view']+16,3,4)
+        m.put(RESIDENT+self.syms['menu_view']+16,4,4)
         m.calls.clear()
         m.run(RESIDENT+self.syms['menu_picker_enter'],STACK+0x5000,STACK+0x5100,0)
         self.assertEqual(m.read(STACK+0x5100,16),bytes(16))
