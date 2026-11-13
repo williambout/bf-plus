@@ -41,23 +41,24 @@ in this repository. The local build requires the same LLVM tools as BF+.
 .venv/bin/python bfplus_doom.py check .touch-focus/doom/DOOM.BFP
 ```
 
-Copy `DOOM.BFP` to the root of the camera's internal storage, or use normal
-MTP mode and the dedicated uploader:
+Connect the camera using **Access Camera → Mass Storage**. Copy `DOOM.BFP`
+to the root of its mounted storage, alongside `DCIM`, then eject the volume.
+The 5,294,260-byte Doom shareware package was copied this way on BF 1.04 and
+its complete readback matched the source SHA-256. The native game's access
+to that file still needs on-camera validation.
 
-```sh
-.venv/bin/python bfplus_doom.py upload .touch-focus/doom/DOOM.BFP
-```
+Use Mass Storage for the game file. The experimental `upload` command uses
+standard MTP, but both tested transfers timed out in `SendObject`, including
+the version with bounded 4 KiB USB writes. Successful `SendObjectInfo` does
+not establish that the camera accepts the file data. Transfers stop on failure;
+they are never automatically retried or resumed. A receipt beside the local
+package records the object handle and uncertain outcome when available.
 
-The uploader creates a new file through standard MTP and verifies a complete
-readback. USB writes are bounded to 4 KiB within a single PTP data container.
-A durable receipt records creation, the returned object handle, and verification
-or uncertain completion beside the local package. It preserves any existing `DOOM.BFP`, never deletes photos, and
-never uses the vendor RAM-write command to transfer game data. An unsuccessful
-transfer is not automatically retried. To replace a package, remove the old
-file manually first. Restart the camera before loading a larger replacement
-after a game has already allocated memory.
+To replace a package, remove the old `DOOM.BFP` manually first. Restart the
+camera before loading a larger replacement after a game has allocated memory.
 
-Then install the current BF+ build using the [normal instructions](../README.md#install-from-source).
+Reconnect in MTP mode and install the current BF+ build using the
+[normal instructions](../README.md#install-from-source).
 An older resident build must be removed before its replacement is installed.
 Open **Settings → BF+ → Doom**. Select New Game in Doom's menu and press Center.
 Power cycling removes BF+ from RAM; the game package remains on storage.

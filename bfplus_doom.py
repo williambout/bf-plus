@@ -171,7 +171,9 @@ def verify(raw):
 
 
 def upload(path):
-    """Create DOOM.BFP using standard MTP, then read it back in full.
+    """Experimental MTP path; SendObject times out on the tested BF 1.04.
+
+    Use Mass Storage to copy DOOM.BFP. This path remains for investigation.
 
     Existing objects are preserved. A failed/uncertain transfer is never
     retried, deleted, resumed, or converted to a vendor memory write.
@@ -260,7 +262,7 @@ def main():
     p.add_argument('--output', type=Path, default=Path('.touch-focus/doom/DOOM.BFP'))
     p = commands.add_parser('check', help='Validate a package without running it')
     p.add_argument('package', type=Path)
-    p = commands.add_parser('upload', help='Create DOOM.BFP on camera storage using standard MTP and verify readback')
+    p = commands.add_parser('upload', help='Experimental MTP transfer; use Mass Storage on BF 1.04 (see docs/DOOM.md)')
     p.add_argument('package', type=Path)
     args = parser.parse_args()
     try:

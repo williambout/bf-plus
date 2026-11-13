@@ -164,7 +164,7 @@ binaries. Firmware files, generated builds, and local camera records stay ignore
 | [`bfplus_loader.py`](bfplus_loader.py) | Verified, bounded RAM loading |
 | [`bfplus_ptp.py`](bfplus_ptp.py) | Shared USB transport, locking, and write cooldowns |
 | [`bfplus_camera_files.py`](bfplus_camera_files.py) | Read-only JPEG/DNG download and metadata inspection |
-| [`bfplus_doom.py`](bfplus_doom.py) | Doom packaging, validation, and standard MTP upload |
+| [`bfplus_doom.py`](bfplus_doom.py) | Doom packaging and validation; copy packages using Mass Storage |
 | [`tests/`](tests/) | Host, emulation, menu, game, and crop checks |
 
 The earlier Python command and import names remain compatibility aliases.

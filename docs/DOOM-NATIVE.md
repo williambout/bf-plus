@@ -3,13 +3,13 @@
 The resident loader can read an optional engine/WAD package through the native
 file-service task. [doom_storage.h](../bfplus/doom_storage.h) exposes read-only
 open/read/close and uses `"J:\\DOOM.BFP"`. The firmware establishes this path
-syntax; visibility of an MTP-copied root file on the current camera is unverified.
+syntax; native access to the Mass Storage-copied root file is unverified.
 See [DOOM.md](DOOM.md) for package usage and the integrated scene.
 
 Evidence is local static analysis (Capstone 5.0.7) and offline execution
 (Unicorn 2.1.4), following the reverse-engineer-anything skill. REA MCP was
 unavailable; these are not REA Evidence records or hardware observations.
-No camera or USB access was performed. Target: `decoded-V104/rtos-alt.bin`,
+The ABI checks performed no camera or USB access. Target: `decoded-V104/rtos-alt.bin`,
 BF 1.04 segment 05, 15,744,640 bytes, SHA-256:
 
 ```text
@@ -146,8 +146,9 @@ are mocked. A synthetic J: mount translates to `0:\`; the mock handle exceeds
 
 ## Remaining limits
 
-- Confirm the MTP/mass-storage root mapping to J: and file availability in the
-  current camera/USB mode; no physical copy or open was attempted here.
+- A Mass Storage copy of `DOOM.BFP` to the camera root passed complete host
+  readback. Confirm the mapping to J: and native file availability in shooting
+  mode. MTP `SendObject` timed out in two physical attempts; use Mass Storage.
 - Call FS only from a task allowed to block, never an ISR or the file worker
   itself. Serialize each handle and retain buffers until return. The 5000-unit
   semaphore timeout is not an overall operation deadline: worker waits can be
