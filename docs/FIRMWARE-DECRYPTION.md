@@ -85,8 +85,10 @@ instead of one byte at a time.
 
 ## The vendor implementation (header seed)
 
-The firmware parser (`0x4d3157c00` on 1.04) implements the same stream as a
-32-bit xorshift seeded from offset `0x0c`, reset per segment:
+The analyzed 1.04 segment-05 RTOS parser (`0x4d31a0810`, with the decoding loop
+at `0x4d31a0c2c`) implements the same stream as a 32-bit xorshift seeded from
+offset `0x0c`, reset per segment. Addresses must be scoped to the particular
+RTOS image: the earlier `0x4d3157c00` reference is not the parser in segment 05.
 
 ```c
 uint32_t x = seed ? seed : 1;
@@ -126,4 +128,8 @@ Output is one file per segment, named `<index>_<kind>.bin`.
   research found no cryptographic authentication in the traced parser/writer
   path, but a complete secure-boot/installation audit was not performed, and
   this repository provides **no flashing path**.
+- [Custom firmware investigation](CUSTOM-FIRMWARE.md) records an exact
+  container roundtrip and bounded execution of the original updater/boot code.
+  Modified segment acceptance at the parser loop does not prove installation
+  or bootability; system-image selection and recovery remain unresolved.
 - Do not redistribute decrypted firmware or modified images.

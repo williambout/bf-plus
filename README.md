@@ -8,6 +8,28 @@ the camera's Linux side.
 
 Verified on hardware: `uid=0(root) gid=0(root)`, Linux 4.19.124, aarch64.
 
+The experimental **BF+ v1.0 extension** is documented in
+[docs/TOUCH-FOCUS.md](docs/TOUCH-FOCUS.md). It adds a settings submenu for
+momentary center-button touch magnification with a manual lens without contacts.
+The **MF Subject Detection** option activates native eye/face detection for
+that gesture. Subject centering and release restoration are confirmed on camera.
+The gray target indicator and touch zoom follow the target selected by native
+AF detection. Hardware validation is documented with the feature.
+Its hardware validation status is tracked separately from the root-shell work.
+
+The current source retains native landscape rendering and button/dial menus.
+The automatic UI rotation and LCD menu-control experiment has been removed
+from the replacement build. **BF+ → Extra Aspect Ratios → OFF/ON** enables
+XPan (65:24), 2.35:1 and 5:4 alongside the native aspect choices; it starts OFF.
+The reduced build was installed and its hooks/settings verified on 2026-11-13.
+Native chooser interaction and saved-photo crops await camera validation.
+Center-button Touch Focus Zoom and MF Subject Detection remain.
+
+The [manual focus guide prototype](docs/FOCUS-GUIDE.md) has a tested indicator
+core and a read-only phase-data probe. Camera integration remains incomplete:
+the stock phase worker skips the requested lens without electronic contacts.
+The live Focus Guide is deferred and is not exposed by the installed BF+ menu.
+
 ```
 $ python bf_shell.py -c "id; uname -a"
 uid=0(root) gid=0(root)
