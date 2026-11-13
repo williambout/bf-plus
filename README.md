@@ -68,7 +68,6 @@ an option change. Version is read-only.
 | --- | --- |
 | Touch-to-zoom and release | Confirmed on camera |
 | Subject detection, target frame, and zoom-position restoration | Confirmed on camera |
-| BF+ submenu styling and compact selectors | Confirmed on earlier feature builds |
 | Current BF+ 1.0 build | Installed; code, hooks, permissions, and settings verified |
 | Extra aspect ratios | Offline navigation/crop checks pass; physical selector and saved-file checks pending |
 
